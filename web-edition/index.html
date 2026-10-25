@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genshin Impact: Web Edition</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 3D Canvas Container -->
+    <div id="game-container"></div>
+
+    <!-- Center Reticle -->
+    <div class="reticle"></div>
+
+    <!-- Screen VFX Overlays -->
+    <div id="burst-flash"></div>
+    <div id="hit-flash"></div>
+    <div id="damage-numbers-container"></div>
+
+    <!-- Top UI Bar -->
+    <div class="top-bar">
+        <div class="currency-group">
+            <div class="currency-pill">
+                <span class="icon">💎</span>
+                <span id="primogem-count">1,600</span>
+            </div>
+            <div class="currency-pill">
+                <span class="icon">🪙</span>
+                <span id="mora-count">50,000</span>
+            </div>
+        </div>
+
+        <div class="top-buttons">
+            <button id="sound-toggle" class="action-pill-btn">🔊 Sound: ON</button>
+            <button id="wish-btn" class="action-pill-btn">✨ Wish (G)</button>
+            <button id="help-btn" class="action-pill-btn">❓ Help (H)</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification">Welcome to Teyvat!</div>
+
+    <!-- Interaction Prompt [F] -->
+    <div id="interaction-prompt">
+        <span class="key-badge">F</span> Open Chest
+    </div>
+
+    <!-- Party Members Sidebar (Right) -->
+    <div class="party-container">
+        <!-- Character 1 -->
+        <div id="party-card-1" class="party-card active" onclick="if(window.game) window.game.switchCharacter(0)">
+            <span class="party-num">1</span>
+            <div class="party-avatar-icon" style="border-color:#ff5c28; color:#ff5c28;">🔥</div>
+            <div class="party-info">
+                <div class="party-name">Kaelen</div>
+                <div class="party-hp-bar">
+                    <div class="party-hp-fill" style="background:#ff5c28;"></div>
+                </div>
+            </div>
+            <div class="party-burst-ready" style="display:none;">✨</div>
+        </div>
+
+        <!-- Character 2 -->
+        <div id="party-card-2" class="party-card" onclick="if(window.game) window.game.switchCharacter(1)">
+            <span class="party-num">2</span>
+            <div class="party-avatar-icon" style="border-color:#1ec6ff; color:#1ec6ff;">💧</div>
+            <div class="party-info">
+                <div class="party-name">Marina</div>
+                <div class="party-hp-bar">
+                    <div class="party-hp-fill" style="background:#1ec6ff;"></div>
+                </div>
+            </div>
+            <div class="party-burst-ready" style="display:none;">✨</div>
+        </div>
+
+        <!-- Character 3 -->
+        <div id="party-card-3" class="party-card" onclick="if(window.game) window.game.switchCharacter(2)">
+            <span class="party-num">3</span>
+            <div class="party-avatar-icon" style="border-color:#c469ff; color:#c469ff;">⚡</div>
+            <div class="party-info">
+                <div class="party-name">Raiko</div>
+                <div class="party-hp-bar">
+                    <div class="party-hp-fill" style="background:#c469ff;"></div>
+                </div>
+            </div>
+            <div class="party-burst-ready" style="display:none;">✨</div>
+        </div>
+
+        <!-- Character 4 -->
+        <div id="party-card-4" class="party-card" onclick="if(window.game) window.game.switchCharacter(3)">
+            <span class="party-num">4</span>
+            <div class="party-avatar-icon" style="border-color:#4af5b0; color:#4af5b0;">🍃</div>
+            <div class="party-info">
+                <div class="party-name">Ventus</div>
+                <div class="party-hp-bar">
+                    <div class="party-hp-fill" style="background:#4af5b0;"></div>
+                </div>
+            </div>
+            <div class="party-burst-ready" style="display:none;">✨</div>
+        </div>
+    </div>
+
+    <!-- Active Character Status (Bottom Center) -->
+    <div class="bottom-center">
+        <div class="active-char-card">
+            <div id="char-title" class="char-title">Flame of Dawn</div>
+            <div id="char-name" class="char-name">Kaelen</div>
+            <div class="hp-container">
+                <div id="char-hp-fill" class="hp-fill"></div>
+            </div>
+            <div id="char-hp-text" class="hp-text">12500 / 12500</div>
+        </div>
+
+        <!-- Stamina Bar -->
+        <div class="stamina-bar-container">
+            <div id="stamina-fill" class="stamina-fill"></div>
+        </div>
+    </div>
+
+    <!-- Skills & Abilities (Bottom Right) -->
+    <div class="bottom-right-skills">
+        <!-- Normal Attack -->
+        <div class="skill-btn-circle" onclick="if(window.game) window.game.performAttack()">
+            <span class="skill-icon">⚔️</span>
+            <span class="skill-badge">L-Click</span>
+        </div>
+
+        <!-- Elemental Skill [E] -->
+        <div id="skill-btn" class="skill-btn-circle" onclick="if(window.game) window.game.castSkill()">
+            <span class="skill-icon">🔮</span>
+            <span class="skill-badge">E</span>
+            <div id="skill-cd" class="skill-cooldown-overlay">0.0</div>
+        </div>
+
+        <!-- Elemental Burst [Q] -->
+        <div id="burst-btn" class="burst-btn-circle" onclick="if(window.game) window.game.castBurst()">
+            <div id="burst-energy-fill" class="burst-energy-fill"></div>
+            <div class="burst-inner">
+                <span class="skill-icon">💥</span>
+                <span class="skill-badge">Q</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wish / Gacha Banner Modal -->
+    <div id="wish-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-wish-modal" class="modal-close">&times;</button>
+            <h2 class="modal-title">✨ Event Wish - Reign of Serenity ✨</h2>
+
+            <div class="wish-banner-card">
+                <div class="wish-banner-left">
+                    <div class="wish-banner-title">Plane of Euthymia</div>
+                    <div class="wish-banner-sub">Increased Drop Rate for 5★ Raiden Shogun & 5★ Hu Tao!</div>
+                    <div class="featured-char">
+                        <span class="featured-avatar">⚡</span>
+                        <div>
+                            <div class="featured-name">Raiden Shogun</div>
+                            <div class="featured-stars">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wish-banner-right">
+                    <div style="font-size: 64px; filter: drop-shadow(0 0 20px #c469ff);">🗡️</div>
+                </div>
+            </div>
+
+            <div class="wish-actions">
+                <button id="wish-single-btn" class="wish-pull-btn">
+                    <span>Wish ×1</span>
+                    <span class="wish-pull-cost">💎 160 Primogems</span>
+                </button>
+                <button id="wish-multi-btn" class="wish-pull-btn">
+                    <span>Wish ×10</span>
+                    <span class="wish-pull-cost">💎 1,600 Primogems</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wish Shooting Comet VFX -->
+    <div id="wish-comet-overlay">
+        <div id="comet-star" class="comet-star gold"></div>
+    </div>
+
+    <!-- Wish Results Modal -->
+    <div id="wish-results-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">✨ Wish Results ✨</h2>
+            <div id="wish-cards-grid" class="wish-cards-grid"></div>
+            <div style="text-align:center; margin-top: 20px;">
+                <button id="close-results-btn" class="action-pill-btn" style="margin: 0 auto; padding: 10px 32px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help & Controls Modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-help-modal" class="modal-close">&times;</button>
+            <h2 class="modal-title">📜 Controls & Gameplay Guide</h2>
+            <div class="help-grid">
+                <div class="help-item"><span class="help-key">WASD</span> Move character in 3D world</div>
+                <div class="help-item"><span class="help-key">Mouse Look</span> Orbit camera (Click canvas to lock cursor)</div>
+                <div class="help-item"><span class="help-key">Left Click</span> Normal Attack Combo (3-hit chain with elemental finisher)</div>
+                <div class="help-item"><span class="help-key">Right Click / Shift</span> Sprint / Dash (Consumes stamina, grants i-frames)</div>
+                <div class="help-item"><span class="help-key">Space</span> Jump / Deploy Wind Glider while in air</div>
+                <div class="help-item"><span class="help-key">E</span> Elemental Skill (Specific to active character)</div>
+                <div class="help-item"><span class="help-key">Q</span> Elemental Burst (Consumes energy for massive AoE)</div>
+                <div class="help-item"><span class="help-key">1, 2, 3, 4</span> Switch party members (Pyro, Hydro, Electro, Anemo)</div>
+                <div class="help-item"><span class="help-key">F</span> Interact with Chests, Waypoints, Anemoculus</div>
+                <div class="help-item"><span class="help-key">G</span> Open Wish Banner (Pull for 5-star characters & weapons!)</div>
+                <div class="help-item"><span class="help-key">Reactions</span> Vaporize (Pyro+Hydro), Overload (Pyro+Electro), Swirl (Anemo+Any)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="libs/three.min.js"></script>
+    <script>
+        if (typeof THREE === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
+    <script src="js/audio.js"></script>
+    <script src="js/elements.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/characters.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/gacha.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
